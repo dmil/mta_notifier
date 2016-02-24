@@ -35,8 +35,6 @@ def tidyup():
     lcd.clear()
 
 def write_lines(line1, line2, line3):
-	if len(lines) > 3:
-		raise
 	if len(line1) > 16 or len(line2) > 16 or len(line3) > 16:
 		raise
 
@@ -63,11 +61,11 @@ def turn_on_backlight():
 if __name__ == "__main__":
 	turn_on_backlight()
 	minutes_left = next_arrival()['mins_until']
-
 	lcd.clear()
 	write_minutes(minutes_left)
 
 	while True:
+		import pdb; pdb.set_trace()
 		if minutes_left != next_arrival()['mins_until']:
 			print "new time found"
 			lcd.clear()
