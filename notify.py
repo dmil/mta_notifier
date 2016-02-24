@@ -9,9 +9,9 @@ def minutes_left(arrival):
 	now = datetime.datetime.now(pytz.timezone('US/Eastern'))
 	diff = arrival - now
 	if diff.seconds < 20:
-		diff = 0
+		return 0
 	if diff.seconds > 1000 * 60:
-		diff = 0
+		return 0
 	return int(math.ceil(diff.seconds / 60))
 
 def next_arrival():
@@ -26,8 +26,8 @@ def next_arrival():
 	return arrivals[0]
 
 # Print to DotHat
-import dothat.lcd as lcd
-import dothat.backlight as backlight
+# import dothat.lcd as lcd
+# import dothat.backlight as backlight
 
 def tidyup():
     backlight.off()
@@ -60,17 +60,16 @@ def turn_on_backlight():
 
 if __name__ == "__main__":
 	turn_on_backlight()
-	minutes_left = next_arrival()['mins_until']
+	mins_till_train = next_arrival()['mins_until']
 	lcd.clear()
-	write_minutes(minutes_left)
+	write_minutes(mins_till_train)
 
 	while True:
-		import pdb; pdb.set_trace()
-		if minutes_left != next_arrival()['mins_until']:
+		if mins_till_train != next_arrival()['mins_until']:
 			print "new time found"
 			lcd.clear()
-			minutes_left = next_arrival()['mins_until']
-			write_minutes(minutes_left)
+			mins_till_train = next_arrival()['mins_until']
+			write_minutes(mins_till_train)
 		else:
 			print "new time not found"
 		time.sleep(10)
