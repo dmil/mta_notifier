@@ -1,7 +1,7 @@
 # Get data from MTA
 import urllib, json, re
 from pprint import pprint
-import datetime
+import datetime, time
 import math
 import dateutil.parser, pytz
 
@@ -23,9 +23,7 @@ def next_arrival():
 	for arrival in arrivals:
 		arrival['time'] = dateutil.parser.parse(arrival['time'])
 		arrival['mins_until'] = minutes_left(arrival['time'])
-	texts = ["(%s) South Ferry - %d min" % (arrival['route'], arrival['mins_until']) for arrival in arrivals]
-	next_train = texts[0]
-	return next_train
+	return arrivals[0]
 
 # Print to DotHat
 import dothat.lcd as lcd
@@ -36,6 +34,26 @@ def tidyup():
     backlight.set_graph(0)
     lcd.clear()
 
+def write_lines(line1, line2, line3):
+	if len(lines) > 3:
+		raise
+	if len(line1) > 16 or len(line2) > 16 or len(line3) > 16:
+		raise
+
+	lcd.set_cursor_position(0,0)
+	lcd.write(line1)
+	lcd.set_cursor_position(0,1)
+	lcd.write(line2)
+	lcd.set_cursor_position(0,2)
+	lcd.write(line3)
+
+def write_minutes(mins):
+	write_lines(
+		"145 st",
+		"(1) South Ferry",
+		" -- %d min -- " % mins
+	)
+
 def turn_on_backlight():
 	r=100
 	g=100
@@ -44,12 +62,17 @@ def turn_on_backlight():
 
 if __name__ == "__main__":
 	turn_on_backlight()
-	text_to_display = next_arrival
+	minutes_left = next_arrival()['mins_until']
+
+	lcd.clear()
+	write_minutes(minutes_left)
 
 	while True:
-		if text_to_display != next_arrival:
+		if minutes_left != next_arrival()['mins_until']:
+			print "new time found"
 			lcd.clear()
-			lcd.write("145 st ")
-			lcd.write(next_arrival)
-			text_to_display = next_arrival
+			minutes_left = next_arrival()['mins_until']
+			write_minutes(minutes_left)
+		else:
+			print "new time not found"
 		time.sleep(10)
